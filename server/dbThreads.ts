@@ -233,7 +233,7 @@ export async function getCommunityWidgets(communityId: number) {
   return await db
     .select()
     .from(communityWidgets)
-    .where(and(eq(communityWidgets.communityId, communityId), eq(communityWidgets.isVisible, 1)))
+    .where(and(eq(communityWidgets.communityId, communityId), eq(communityWidgets.isVisible, true)))
     .orderBy(communityWidgets.position);
 }
 

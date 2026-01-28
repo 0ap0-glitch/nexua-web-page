@@ -240,57 +240,6 @@ export const appRouter = router({
       }),
   }),
 
-  // ============= AI COMPANION =============
-  aiCompanion: router({
-    get: protectedProcedure.query(async ({ ctx }) => {
-      let companion = await db.getAiCompanionByUserId(ctx.user.id);
-      
-      // Create default companion if doesn't exist
-      if (!companion) {
-        await db.createAiCompanion({
-          userId: ctx.user.id,
-          name: "NEX",
-          avatarType: "default",
-          voiceMode: "guide",
-        });
-        companion = await db.getAiCompanionByUserId(ctx.user.id);
-      }
-      
-      return companion;
-    }),
-
-    update: protectedProcedure
-      .input(z.object({
-        name: z.string().optional(),
-        avatarType: z.string().optional(),
-        voiceMode: z.enum(["speak", "guide", "silent", "muted"]).optional(),
-        personalityConfig: z.string().optional(),
-        onboardingProgress: z.string().optional(),
-        preferences: z.string().optional(),
-      }))
-      .mutation(async ({ ctx, input }) => {
-        await db.updateAiCompanion(ctx.user.id, input);
-        return { success: true };
-      }),
-
-    chat: protectedProcedure
-      .input(z.object({
-        message: z.string(),
-        context: z.string().optional(), // JSON: conversation context
-      }))
-      .mutation(async ({ ctx, input }) => {
-        // Get AI companion config
-        const companion = await db.getAiCompanionByUserId(ctx.user.id);
-        
-        // TODO: Implement LLM integration for AI chat
-        // For now, return a placeholder response
-        return {
-          response: `Hello ${ctx.user.name}, I'm ${companion?.name || 'NEX'}, your AI companion. This feature is coming soon!`,
-          timestamp: new Date(),
-        };
-      }),
-  }),
-
   // ============= FEATURE FLAGS =============
   featureFlags: router({
     list: protectedProcedure.query(async ({ ctx }) => {
@@ -312,7 +261,7 @@ export const appRouter = router({
       .input(z.object({
         name: z.string(),
         description: z.string().optional(),
-        enabled: z.number().default(0),
+        enabled: z.boolean().default(false),
         rolloutPercentage: z.number().default(0),
         targetUserIds: z.string().optional(),
       }))
@@ -327,7 +276,7 @@ export const appRouter = router({
     update: protectedProcedure
       .input(z.object({
         flagId: z.number(),
-        enabled: z.number().optional(),
+        enabled: z.boolean().optional(),
         rolloutPercentage: z.number().optional(),
         targetUserIds: z.string().optional(),
       }))
@@ -374,7 +323,7 @@ export const appRouter = router({
         threadId: z.number(),
         title: z.string().optional(),
         content: z.string().optional(),
-        isPinned: z.number().optional(),
+        isPinned: z.boolean().optional(),
       }))
       .mutation(async ({ input }) => {
         const { threadId, ...updates } = input;
@@ -477,7 +426,7 @@ export const appRouter = router({
         title: z.string().optional(),
         content: z.string().optional(),
         position: z.number().optional(),
-        isVisible: z.number().optional(),
+        isVisible: z.boolean().optional(),
       }))
       .mutation(async ({ input }) => {
         const { widgetId, ...updates } = input;

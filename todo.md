@@ -109,3 +109,32 @@
 - [ ] Build workshop/event scheduling within communities
 - [ ] Implement fan interaction features (Q&A, AMAs)
 - [ ] Add content drops system for creators
+
+
+## Phase 12: Vercel Serverless Conversion
+
+- [ ] Set up external database (PlanetScale or Neon)
+- [ ] Convert Express server to Vercel serverless API routes
+- [ ] Update tRPC adapter for serverless functions
+- [ ] Configure environment variables for Vercel
+- [ ] Update build scripts for Vercel deployment
+- [ ] Configure vercel.json properly
+- [ ] Test serverless functions locally
+- [ ] Deploy and verify on Vercel
+- [ ] Update authentication flow for serverless
+- [ ] Verify database connections work in serverless environment
+
+
+## Phase 13: Vercel Deployment (No AI)
+
+- [x] Remove AI companion table and references
+- [x] Remove AI companion widget type
+- [x] Remove AI companion routes from backend
+- [x] Remove AI companion UI components
+- [x] Configure Neon PostgreSQL connection
+- [x] Update database schema for PostgreSQL
+- [ ] Create Vercel API routes structure
+- [ ] Configure vercel.json for serverless
+- [ ] Set up environment variables in Vercel
+- [ ] Push to GitHub
+- [ ] Verify Vercel deployment

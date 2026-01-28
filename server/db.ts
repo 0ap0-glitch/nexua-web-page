@@ -1,5 +1,6 @@
 import { eq, and, desc, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { 
   InsertUser, 
   users, 
@@ -15,8 +16,7 @@ import {
   InsertPost,
   connections,
   InsertConnection,
-  aiCompanions,
-  InsertAiCompanion,
+
   featureFlags,
   InsertFeatureFlag,
   events,
@@ -32,7 +32,8 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const client = postgres(process.env.DATABASE_URL);
+      _db = drizzle(client);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -93,7 +94,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.lastSignedIn = new Date();
     }
 
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
+    await db.insert(users).values(values).onConflictDoUpdate({
+      target: users.openId,
       set: updateSet,
     });
   } catch (error) {
@@ -372,31 +374,6 @@ export async function updateConnectionStatus(connectionId: number, status: 'acce
   if (!db) throw new Error("Database not available");
 
   await db.update(connections).set({ status }).where(eq(connections.id, connectionId));
-}
-
-// ============= AI COMPANION MANAGEMENT =============
-
-export async function createAiCompanion(companion: InsertAiCompanion) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  const result = await db.insert(aiCompanions).values(companion);
-  return result;
-}
-
-export async function getAiCompanionByUserId(userId: number) {
-  const db = await getDb();
-  if (!db) return undefined;
-
-  const result = await db.select().from(aiCompanions).where(eq(aiCompanions.userId, userId)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
-}
-
-export async function updateAiCompanion(userId: number, updates: Partial<InsertAiCompanion>) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db.update(aiCompanions).set(updates).where(eq(aiCompanions.userId, userId));
 }
 
 // ============= FEATURE FLAG MANAGEMENT =============
