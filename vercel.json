@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm install && pnpm build",
-  "outputDirectory": "dist/client",
-  "installCommand": "pnpm install"
+  "buildCommand": "cd client && npm install && npm run build",
+  "outputDirectory": "client/dist",
+  "installCommand": "npm install --prefix client"
 }
